@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca Virtual</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+        .container {
+            width: 80%;
+            margin: 2rem auto;
+        }
+        .book-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-around;
+        }
+        .book-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            width: 200px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .book-item img {
+            width: 100%;
+            border-radius: 5px;
+        }
+        .book-title {
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+        .book-author {
+            color: #7f8c8d;
+        }
+        .book-genre {
+            font-size: 0.9rem;
+            color: #2ecc71;
+        }
+        .search-bar {
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .search-bar input {
+            padding: 10px;
+            font-size: 1rem;
+            width: 50%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            padding-left: 30px; /* Espaço para o ícone da lupa */
+        }
+        .search-bar i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+        }
+        .book-link {
+            display: block;
+            margin-top: 10px;
+            color: #2980b9;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+        .book-link:hover {
+            text-decoration: underline;
+        }
+        .in-reading {
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        .add-book-form {
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        .add-book-form input, .add-book-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .add-book-form button {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .add-book-form button:hover {
+            background-color: #34495e;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Biblioteca Virtual</h1>
+</header>
+
+<div class="container">
+    <div class="search-bar">
+        <i class="fas fa-search"></i> <!-- Ícone da lupa -->
+        <input type="text" id="search" placeholder="Buscar por título ou autor..." onkeyup="searchBooks()">
+    </div>
+
+    <!-- Formulário para adicionar novos livros -->
+    <div class="add-book-form">
+        <h2>Adicionar Novo Livro</h2>
+        <form id="bookForm" onsubmit="addBook(event)">
+            <label for="bookTitle">Título</label>
+            <input type="text" id="bookTitle" required placeholder="Título do livro">
+            
+            <label for="bookAuthor">Autor</label>
+            <input type="text" id="bookAuthor" required placeholder="Autor do livro">
+            
+            <label for="bookGenre">Gênero</label>
+            <input type="text" id="bookGenre" required placeholder="Gênero do livro">
+            
+            <label for="bookLink">Link para Leitura</label>
+            <input type="url" id="bookLink" required placeholder="URL para ler o livro online">
+            
+            <label for="bookImage">URL da Imagem da Capa</label>
+            <input type="url" id="bookImage" required placeholder="URL da capa do livro">
+            
+            <label for="bookInReading">Está em Leitura?</label>
+            <input type="checkbox" id="bookInReading">
+            
+            <label for="bookActivity">Atividade</label>
+            <textarea id="bookActivity" placeholder="Atividade relacionada ao livro"></textarea>
+            
+            <button type="submit">Adicionar Livro</button>
+        </form>
+    </div>
+    
+    <div class="book-list" id="bookList">
+        <!-- Aqui aparecerão os livros adicionados -->
+    </div>
+</div>
+
+<script>
+    // Função para adicionar novos livros
+    function addBook(event) {
+        event.preventDefault();
+
+        const title = document.getElementById('bookTitle').value;
+        const author = document.getElementById('bookAuthor').value;
+        const genre = document.getElementById('bookGenre').value;
+        const link = document.getElementById('bookLink').value;
+        const image = document.getElementById('bookImage').value;
+        const inReading = document.getElementById('bookInReading').checked;
+        const activity = document.getElementById('bookActivity').value;
+
+        const bookList = document.getElementById('bookList');
+
+        // Criação do novo item de livro
+        const bookItem = document.createElement('div');
+        bookItem.classList.add('book-item');
+
+        bookItem.innerHTML = `
+            <img src="${image}" alt="${title}">
+            <div class="book-title">${title}</div>
+            <div class="book-author">${author}</div>
+            <div class="book-genre">${genre}</div>
+            <a href="${link}" class="book-link" target="_blank">Ler online</a>
+            <label class="in-reading">
+                <input type="checkbox" ${inReading ? 'checked' : ''} /> Em Leitura
+            </label>
+            <div class="book-activity"><strong>Atividade:</strong> ${activity}</div>
+        `;
+
+        bookList.appendChild(bookItem);
+
+        // Limpar o formulário
+        document.getElementById('bookForm').reset();
+    }
+
+    // Função de busca simples
+    function searchBooks() {
+        let searchQuery = document.getElementById('search').value.toLowerCase();
+        let books = document.querySelectorAll('.book-item');
+
+        books.forEach(function(book) {
+            let title = book.querySelector('.book-title').innerText.toLowerCase();
+            let author = book.querySelector('.book-author').innerText.toLowerCase();
+            let genre = book.querySelector('.book-genre').innerText.toLowerCase();
+
+            if (title.includes(searchQuery) || author.includes(searchQuery) || genre.includes(searchQuery)) {
+                book.style.display = 'block';
+            } else {
+                book.style.display = 'none';
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca Virtual</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+        .container {
+            width: 80%;
+            margin: 2rem auto;
+        }
+        .book-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-around;
+        }
+        .book-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            width: 200px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .book-item img {
+            width: 100%;
+            border-radius: 5px;
+        }
+        .book-title {
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+        .book-author {
+            color: #7f8c8d;
+        }
+        .book-genre {
+            font-size: 0.9rem;
+            color: #2ecc71;
+        }
+        .search-bar {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .search-bar input {
+            padding: 10px;
+            font-size: 1rem;
+            width: 50%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .book-link {
+            display: block;
+            margin-top: 10px;
+            color: #2980b9;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+        .book-link:hover {
+            text-decoration: underline;
+        }
+        .in-reading {
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Biblioteca Virtual</h1>
+</header>
+
+<div class="container">
+    <div class="search-bar">
+        <input type="text" id="search" placeholder="Buscar por título ou autor..." onkeyup="searchBooks()">
+    </div>
+    
+    <div class="book-list" id="bookList">
+        <!-- Livro 1: Dom Casmurro -->
+        <div class="book-item">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/3/3b/Dom_Casmurro_-_Machado_de_Assis.png" alt="Dom Casmurro">
+            <div class="book-title">Dom Casmurro</div>
+            <div class="book-author">Machado de Assis (1899)</div>
+            <div class="book-genre">Romance</div>
+            <a href="https://www.gutenberg.org/ebooks/14745" class="book-link" target="_blank">Ler online</a>
+            <label class="in-reading">
+                <input type="checkbox" name="reading" /> Em Leitura
+            </label>
+        </div>
+
+        <!-- Livro 2: O Primo Basílio -->
+        <div class="book-item">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/9/92/O_Primo_Bas%C3%ADlio.png" alt="O Primo Basílio">
+            <div class="book-title">O Primo Basílio</div>
+            <div class="book-author">José de Alencar (1857)</div>
+            <div class="book-genre">Romance</div>
+            <a href="https://www.gutenberg.org/ebooks/18011" class="book-link" target="_blank">Ler online</a>
+            <label class="in-reading">
+                <input type="checkbox" name="reading" /> Em Leitura
+            </label>
+        </div>
+
+        <!-- Livro 3: A Moreninha -->
+        <div class="book-item">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/3/32/A_Moreninha.jpg" alt="A Moreninha">
+            <div class="book-title">A Moreninha</div>
+            <div class="book-author">Joaquim Manuel de Macedo (1844)</div>
+            <div class="book-genre">Romance</div>
+            <a href="https://www.gutenberg.org/ebooks/42239" class="book-link" target="_blank">Ler online</a>
+            <label class="in-reading">
+                <input type="checkbox" name="reading" /> Em Leitura
+            </label>
+        </div>
+
+        <!-- Livro 4: Cálculo I -->
+        <div class="book-item">
+            <img src="https://images-na.ssl-images-amazon.com/images/I/41gZZYr9YLL._SX379_BO1,204,203,200_.jpg" alt="Cálculo I">
+            <div class="book-title">Cálculo I</div>
+            <div class="book-author">James Stewart (2003)</div>
+            <div class="book-genre">Matemática</div>
+            <a href="https://www.google.com/search?q=C%C3%A1lculo+I+James+Stewart" class="book-link" target="_blank">Ler online</a>
+            <label class="in-reading">
+                <input type="checkbox" name="reading" /> Em Leitura
+            </label>
+        </div>
+
+        <!-- Livro 5: História do Brasil -->
+        <div class="book-item">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/d/d8/Historia_do_Brasil_-_Sergio_Buarque_de_Holanda.png" alt="História do Brasil">
+            <div class="book-title">História do Brasil</div>
+            <div class="book-author">Sérgio Buarque de Holanda (1957)</div>
+            <div class="book-genre">História</div>
+            <a href="https://www.google.com/search?q=Hist%C3%B3ria+do+Brasil+S%C3%A9rgio+Buarque+de+Holanda" class="book-link" target="_blank">Ler online</a>
+            <label class="in-reading">
+                <input type="checkbox" name="reading" /> Em Leitura
+            </label>
+        </div>
+
+        <!-- Livro 6: Introdução à Física -->
+        <div class="book-item">
+            <img src="https://images-na.ssl-images-amazon.com/images/I/41Qcd1F8b7L._SX360_BO1,204,203,200_.jpg" alt="Introdução à Física">
+            <div class="book-title">Introdução à Física</div>
+            <div class="book-author">David Halliday (1993)</div>
+            <div class="book-genre">Física</div>
+            <a href="https://www.google.com/search?q=Introdu%C3%A7%C3%A3o+%C3%A0+F%C3%ADsica+David+Halliday" class="book-link" target="_blank">Ler online</a>
+            <label class="in-reading">
+                <input type="checkbox" name="reading" /> Em Leitura
+            </label>
+        </div>
+
+        <!-- Livro 7: Gramática da Língua Portuguesa -->
+        <div class="book-item">
+            <img src="https://images-na.ssl-images-amazon.com/images/I/41Zp4V9LwsL._SX368_BO1,204,203,200_.jpg" alt="Gramática da Língua Portuguesa">
+            <div class="book-title">Gramática da Língua Portuguesa</div>
+            <div class="book-author">Celso Cunha (1981)</div>
+            <div class="book-genre">Português</div>
+            <a href="https://www.google.com/search?q=Gram%C3%A1tica+da+L%C3%ADngua+Portuguesa+Celso+Cunha" class="book-link" target="_blank">Ler online</a>
+            <label class="in-reading">
+                <input type="checkbox" name="reading" /> Em Leitura
+            </label>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Função de busca simples
+    function searchBooks() {
+        let searchQuery = document.getElementById('search').value.toLowerCase();
+        let books = document.querySelectorAll('.book-item');
+
+        books.forEach(function(book) {
+            let title
